@@ -1,3 +1,5 @@
+import pkg_resources
+
 import azimuth.predict as pd
 import copy
 import os
@@ -535,15 +537,14 @@ def predict(seq, aa_cut=None, percent_peptide=None, model=None, model_file=None,
 
 
     if model_file is None:
-        azimuth_saved_model_dir = os.path.join(os.path.dirname(azimuth.__file__), 'saved_models')
         if np.any(percent_peptide == -1) or (percent_peptide is None and aa_cut is None):
-            print("No model file specified, using V3_model_nopos")
             model_name = 'V3_model_nopos.pickle'
         else:
-            print("No model file specified, using V3_model_full")
             model_name = 'V3_model_full.pickle'
 
-        model_file = os.path.join(azimuth_saved_model_dir, model_name)
+        model_file = os.path.join('saved_models', model_name)
+        with pkg_resources.resource_stream(__package__, model_file) as f:
+            model = pickle.load(f)
 
     if model is None:
         with open(model_file, 'rb') as f:
